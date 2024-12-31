@@ -16,7 +16,7 @@ def parse(file, strict=True):
 
         ["0, 0, Header, 1, 1, 480",
          "1, 0, Start_track",
-         "1, 0, Tempo, 500000"]
+         "1, 0, Tempo, 120"]
     """
     csv_file = []
     pattern = read_midifile(file, strict)
@@ -28,5 +28,4 @@ def parse(file, strict=True):
             abstime += event.tick
             converted = midi_to_csv_map[type(event)](index + 1, abstime, event)
             csv_file.append(converted)
-    csv_file.append("0, 0, End_of_file")
     return csv_file

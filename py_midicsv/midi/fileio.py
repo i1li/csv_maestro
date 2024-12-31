@@ -241,8 +241,10 @@ class FileWriter:
             self.RunningStatus = None
             ret.append(event.statusmsg)
             ret.append(event.metacommand)
-            ret.extend(write_varlen(len(event.data)))
-            ret.extend(event.data)
+            # Ensure valid bytes
+            data_bytes = [max(0, min(255, int(d))) for d in event.data]
+            ret.extend(write_varlen(len(data_bytes)))
+            ret.extend(data_bytes)
         # is this event a Sysex Event?
         elif isinstance(event, SysexEvent):
             self.RunningStatus = None

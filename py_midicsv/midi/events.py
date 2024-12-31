@@ -360,18 +360,18 @@ class SetTempoEvent(MetaEvent):
     metacommand = 0x51
     length = 3
 
+    def get_bpm(self):
+        return float(6e7 / self.mpqn)
+
     def set_bpm(self, bpm):
         self.mpqn = int(6e7 / bpm)
-
-    def get_bpm(self):
-        return 6e7 / self.mpqn
+        return self
 
     bpm = property(get_bpm, set_bpm)
 
     def get_mpqn(self):
         assert len(self.data) == 3
-        vals = [self.data[x] << (16 - (8 * x)) for x in range(3)]
-        return sum(vals)
+        return sum(self.data[x] << (16 - (8 * x)) for x in range(3))
 
     def set_mpqn(self, val):
         self.data = [(val >> (16 - (8 * x)) & 0xFF) for x in range(3)]
@@ -439,7 +439,7 @@ class TimeSignatureEvent(MetaEvent):
     numerator = property(get_numerator, set_numerator)
 
     def get_denominator(self):
-        return 2 ** self.data[1]
+        return self.data[1]
 
     def set_denominator(self, val):
         self.data[1] = val

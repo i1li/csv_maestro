@@ -18,8 +18,7 @@ def parse(file, strict=True):
               an open file-like object.
 
     Returns:
-        A Pattern() object containing the byte-representations as parsed from
-        the input file.
+        A Pattern() object containing the byte-representations as parsed from the input file.
     """
 
     if isinstance(file, str):
@@ -33,14 +32,18 @@ def parse(file, strict=True):
         if line[0].startswith(COMMENT_DELIMITERS):
             continue
         tr = int(line[0])
-        time = int(line[1])
-        identifier = line[2].strip()
-        if identifier == "Header":
+        time = round(float(line[1]))
+        identifier = line[2].strip().lower()
+        if identifier == "header":
             pattern.format = int(line[3])
-            pattern.resolution = int(line[5])
-        elif identifier == "End_of_file":
-            continue
-        elif identifier == "Start_track":
+            resolution = int(line[5])
+            if resolution > 30000:
+                print("Warning: Maximum resolution (PPQ) is 30,000. Using 30,000.")
+                resolution = 30000
+            pattern.resolution = resolution
+        elif identifier == "end_of_file":
+            continue # unused but left for backward compatability
+        elif identifier == "start_track":
             track = Track(tick_relative=False)
             pattern.append(track)
         else:

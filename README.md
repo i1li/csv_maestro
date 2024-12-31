@@ -1,3 +1,20 @@
+# csv_maestro - a fork of: py_midicsv
+This fork is used in [Polychron](https://github.com/PolychronMidi/Polychron)
+Improvements in this fork include:
+- Ability to use the actual denominator when setting meter, rather than the confusing MIDI formatted denomintor. (this is the only change that might require users to update how they create their CSV)
+- Users can now use the actual tempo (BPM) value, rather than the confusing MIDI formatted tempo. (backwards compatible by also still accepting MIDI formatted tempo)
+- Midi time values (ticks), and velocity automatically rounded. (MIDI requirement)
+- Velocity not needed for note off events. For note on events, defaults is 99 if no value given.
+- All event identifiers are now case-insensitive.
+- A max PPQ (30,000) check and warning message.
+- No need to specify confusing "Click" and "NotesQ" fields for meter changes.
+- Time_signature event identifier now also accepts 'meter' or 'metre' as aliases depending on user preference.
+- Removed unused 'end_of_file' event identifier.
+- Added MIDI data verification in `fileio.py`.
+- Updates to the [file-format.md](/doc/file-format.md) file to reflect these changes.
+
+The following is the original py_midicsv readme:
+
 # py_midicsv
 
 [![Downloads](https://pepy.tech/badge/py-midicsv)](https://pepy.tech/project/py-midicsv)

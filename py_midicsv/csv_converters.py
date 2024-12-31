@@ -1,5 +1,6 @@
 ### System ###
 import struct
+import math
 
 ### Local ###
 from .midi.events import *
@@ -22,13 +23,16 @@ def as_midi_bytes(text):
 
 
 def to_NoteOffEvent(track, time, identifier, line):
-    channel, pitch, velocity = map(int, line[:3])
-    return NoteOffEvent(tick=time, channel=channel, pitch=pitch, velocity=velocity)
+    channel, pitch = map(int, line[:2])
+    return NoteOffEvent(tick=time, channel=channel, pitch=pitch)
 
 
 def to_NoteOnEvent(track, time, identifier, line):
-    channel, pitch, velocity = map(int, line[:3])
-    return NoteOnEvent(tick=time, channel=channel, pitch=pitch, velocity=velocity)
+    data = dict(enumerate(round(float(x)) if x else 99 for x in line[:3]))
+    event = NoteOnEvent(tick=time, channel=data.get(0))
+    event.set_pitch(data.get(1))
+    event.set_velocity(data.get(2))
+    return event
 
 
 def to_AfterTouchEvent(track, time, identifier, line):
@@ -125,8 +129,12 @@ def to_TrackLoopEvent(track, time, identifier, line):
 
 
 def to_SetTempoEvent(track, time, identifier, line):
-    mpqn = int(line[0])
-    return SetTempoEvent(tick=time, mpqn=mpqn)
+    if round(float(line[0])) > 1000:  # for backward compatibility when tempo expressed as mpqn instead of BPM
+        mpqn = int(line[0])
+        return SetTempoEvent(tick=time, mpqn=mpqn)
+    else: # now we can use actual BPM as tempo value in our CSV:
+        mpqn = SetTempoEvent().set_bpm(float(line[0])).mpqn
+        return SetTempoEvent(tick=time, mpqn=mpqn)
 
 
 def to_SmpteOffsetEvent(track, time, identifier, line):
@@ -139,7 +147,7 @@ def to_TimeSignatureEvent(track, time, identifier, line):
     return TimeSignatureEvent(
         tick=time,
         numerator=data.get(0),
-        denominator=data.get(1),
+        denominator=math.log2(data.get(1)),
         metronome=data.get(2, 24),
         thirtyseconds=data.get(3, 8),
     )

@@ -27,6 +27,8 @@ def from_NoteOffEvent(track, time, event):
 
 
 def from_NoteOnEvent(track, time, event):
+    if len(event.data) == 1:
+        event.data.append(99)
     return write_event(track, time, "Note_on_c", [event.channel, *event.data])
 
 
@@ -112,7 +114,7 @@ def from_TrackLoopEvent(track, time, event):
 
 
 def from_SetTempoEvent(track, time, event):
-    return write_event(track, time, "Tempo", [event.get_mpqn()])
+    return write_event(track, time, "Tempo", [str(event.get_bpm())])
 
 
 def from_SmpteOffsetEvent(track, time, event):
@@ -120,6 +122,7 @@ def from_SmpteOffsetEvent(track, time, event):
 
 
 def from_TimeSignatureEvent(track, time, event):
+    event.data[1] = 2 ** event.data[1]
     if len(event.data) == 2:
         event.data.extend((24, 8))
     return write_event(track, time, "Time_signature", [*event.data])
